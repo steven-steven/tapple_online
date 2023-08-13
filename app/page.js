@@ -12,7 +12,10 @@ const useTimer = ( initialTime ) => {
   const [play, { stop }] = useSound('/sounds/final3.mp3');
 
   useEffect(() => {
-    if(time === 0) stopTimer();
+    if(time === 0){
+      setTimeDone(true);
+      stopTimer();
+    }
     if(time <= 3 && !playSound){
       setPlaySound(true);
       play();
@@ -27,14 +30,12 @@ const useTimer = ( initialTime ) => {
       setTime((prevTime) => prevTime - 1);
     }, 1000);
     setTimerId(intervalId);
-    setTimeDone(false);
   };
 
   const stopTimer = () => {
     if(timerId){
       clearInterval(timerId);
       setTimerId(null);
-      setTimeDone(true);
       if(playSound){
         setPlaySound(false);
         stop();
@@ -42,9 +43,15 @@ const useTimer = ( initialTime ) => {
     }
   };
 
-  const resetTime = () => {
+  const resetTime = (clearTime) => {
     setTime(initialTime);
-    if(timeDone || timerId == null) startTimer();
+    if(clearTime){
+      setTimeDone(false);
+      stopTimer();
+    } else if(timeDone || timerId == null){
+      setTimeDone(false);
+      startTimer();
+    }
   };
 
   return [time, timeDone, resetTime];
@@ -90,7 +97,8 @@ export default function Home() {
   }
 
   const newGame = () => {
-    resetTime();
+    setTimerStarted(false);
+    resetTime(true);
     setSelected([]);
   }
 
@@ -123,7 +131,7 @@ export default function Home() {
         <p className="text-lg">{message}</p>
         <button
           className="bg-blue-200 hover:bg-blue-400 py-2 px-4 rounded mt-4 float-right"
-          onClick={resetTime}
+          onClick={() => resetTime()}
         >
           Continue
         </button>
